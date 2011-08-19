@@ -1,5 +1,7 @@
 all:
 
+CC=gcc -m32
+
 m:  m.o a.o
 	$(CC) -o $@ $^
 
