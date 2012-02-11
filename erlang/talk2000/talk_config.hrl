@@ -1,1 +1,1 @@
--define(server_node, server@talk2000).
+-define(server_node, server@t420i).

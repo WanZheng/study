@@ -1,2 +1,6 @@
--record(login, {pid, username}).
+-record(logon, {client_pid, username}).
 -record(message, {from_pid, to_name, message}).
+-record(message_to, {to_name, message}).
+-record(message_from, {from, message}).
+-record(abort_client, {message}).
+-record(server_reply, {message}).
