@@ -7,8 +7,9 @@ test() ->
         perimeter({square, 3}), perimeter({circle, 3}), perimeter({triangle, {{1, 1}, {5, 1}, {5, 4}}}),
         mymin([1, 3, 2]), mymax([1, 3, 2]),
         swedish_date(),
-        start_ping(5, "hello"),
-        start_circle_ping(5, 3, "hello")
+        start_ping(5, "ping"),
+        start_circle_ping(5, 3, "circle_ping"),
+        start_star_ping(5, 3, "star_ping")
     }.
 
 %%
@@ -64,7 +65,9 @@ start_ping(N, Msg) ->
 
 ping_n(0, _, Pong) ->
     Pong ! {self(), finished},
-    io:format("ping finished~n");
+    receive
+        finished -> io:format("ping finished~n")
+    end;
 ping_n(N, Msg, Pong) ->
     Pong ! {self(), Msg},
     receive
@@ -74,7 +77,9 @@ ping_n(N, Msg, Pong) ->
 
 pong() ->
     receive
-        {_, finished} -> io:format("pong finished~n");
+        {From, finished} ->
+            io:format("pong finished~n"),
+            From ! finished;
         {From, Msg} ->
             io:format("receive ping ~p~n", [Msg]),
             From ! Msg,
@@ -119,3 +124,36 @@ circle_pong(N) ->
             Next ! {From, Msg},
             circle_pong(N)
     end.
+
+%% Write a function which starts N processes in a star, and sends a message to each of them M times. After the messages have been sent the processes should terminate gracefully.
+start_star_ping(N, M, Msg) ->
+    Children = create_children(N),
+    star_ping(Children, M, Msg).
+
+create_children(N) -> create_children(N, []).
+
+create_children(0, Children) -> Children;
+create_children(N, Children) ->
+    Child = spawn_link(exercise, pong, []),
+    create_children(N-1, [Child | Children]).
+
+star_ping(Children, 0, _) ->
+    ping_all(Children, finished),
+    receive_all(Children), 
+    io:format("star ping finished~n");
+star_ping(Children, M, Msg) ->
+    ping_all(Children, Msg),
+    receive_all(Children),
+    star_ping(Children, M-1, Msg).
+
+ping_all(Children, Msg) -> 
+    Fun = fun(Child) -> Child ! {self(), Msg} end,
+    lists:foreach(Fun, Children).
+
+receive_all(Children) ->
+    Fun = fun(_) ->
+            receive
+            _ -> io:format("receive reply ~n")
+            end
+        end,
+    lists:foreach(Fun, Children).
