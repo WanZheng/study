@@ -1,5 +1,5 @@
 -module(patterns).
--export([average/1, double/1, member/2, average2/1]).
+-export([average/1, double/1, member/2, average2/1, factorial/1]).
 
 %%%%%%%%%%%%%%%%%%%%%%%
 average(X) -> sum(X) / len(X).
@@ -29,3 +29,17 @@ average2(X) -> average2(X, 0, 0).
 
 average2([H|T], Length, Sum) -> average2(T, Length+1, Sum+H);
 average2([], Length, Sum) -> Sum / Length.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+factorial(X) when X < 0 -> exit('bad argument');
+factorial(X) -> factorial(X, 1).
+% same as
+%factorial(X) ->
+%    if
+%        X < 0 -> exit('bad argument, X < 0');
+%        true -> factorial(X, 1)
+%    end.
+
+factorial(0, Result) -> Result;
+factorial(X, Result) -> factorial(X-1, X * Result).
