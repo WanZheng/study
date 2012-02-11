@@ -1,0 +1,2 @@
+-record(login, {pid, username}).
+-record(message, {from_pid, to_name, message}).
